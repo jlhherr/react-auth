@@ -32,11 +32,15 @@ function Login() {
                 if (response.status === 401) {
                     alert("Usuario o contraseña incorrectos");
                 } else if (response.status === 200) {
-                    window.location.href = "/profile";
+                    response.text().then((data) => {
+                        const token = JSON.parse(data);
+                        localStorage.setItem("token", token.token);
+                        window.location.href = "/profile";
+                    });
                 }
             })
             .catch((error) => {
-                console.log(error);
+                console.error(error);
             });
     };
 
