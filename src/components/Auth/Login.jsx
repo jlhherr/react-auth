@@ -17,14 +17,14 @@ function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // Función de transformación a base64
+        let credentials = btoa(username + ":" + password);
+
         fetch("http://127.0.0.1:5000/login", {
             method: "POST",
-            body: JSON.stringify({
-                username: username,
-                password: password,
-            }),
             headers: {
                 "Content-type": "application/json",
+                Authorization: `Basic ${credentials}`,
             },
             credentials: "include",
         })
@@ -32,11 +32,22 @@ function Login() {
                 if (response.status === 401) {
                     alert("Usuario o contraseña incorrectos");
                 } else if (response.status === 200) {
-                    window.location.href = "/profile";
+                    if (response.status === 200) {
+                        localStorage.setItem(
+                            "credentials",
+                            btoa(username + ":" + password)
+                        );
+                        window.location.href = "/profile";
+                    } else {
+                        response.text().then((text) => {
+                            const message = JSON.parse(text).message;
+                            alert(message);
+                        });
+                    }
                 }
             })
             .catch((error) => {
-                console.log(error);
+                console.error(error);
             });
     };
 

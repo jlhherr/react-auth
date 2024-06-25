@@ -7,8 +7,20 @@ function Profile() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        const credentials = localStorage.getItem("credentials");
+
+        if (!credentials) {
+            setIsLoading(false);
+            alert("No se ha logeado");
+            return;
+        }
+
         fetch("http://127.0.0.1:5000/me", {
             method: "GET",
+            headers: {
+                "Content-type": "application/json",
+                Authorization: `Basic ${credentials}`,
+            },
             credentials: "include", // Incluye las cookies en la petición (necesario para mantener la sesión)
         })
             .then((response) => {
@@ -29,15 +41,8 @@ function Profile() {
     }, []);
 
     function logout() {
-        fetch("http://127.0.0.1:5000/logout", {
-            method: "POST",
-            credentials: "include",
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log(data);
-                setUser(null);
-            });
+        localStorage.removeItem("credentials");
+        window.location.href = "/login";
     }
 
     if (isLoading) return <div className="loading-message">Loading...</div>;
